@@ -37,7 +37,32 @@ try:
             byte_count += len(data)
             print(f"Read {byte_count} bytes.")
         print(f"Total bytes read: {byte_count}")
+
+        file.seek(0)  # Reset file pointer to the beginning
+        byte_count = 0
+        current_offset = 0
+        characters = []
+        while True:
+            data = file.read(1)  # Read 1 byte at a time
+
+            if not data:
+                if len(characters) >= 4:
+                    print(f"Offset: {current_offset:08x}, Characters: {''.join(characters)}")
+                break
+
+            if 32 <= data[0] <= 126:
+                byte_count += 1
+                characters.append(chr(data[0]))
+                if byte_count == 4:
+                    current_offset = file.tell() - 4
+            else:
+                if len(characters) >= 4:
+                    print(f"Offset: {current_offset:08x}, Characters: {''.join(characters)}")
+                byte_count = 0
+                characters = []
+
 except FileNotFoundError:
     print("Error: File not found.")
 except IOError as e:
     print (f"I/O error: {e}")
+
