@@ -1,3 +1,5 @@
+from rich.console import Console
+console = Console(highlight=False)
 
 def dump_file(filename):
     try:
@@ -11,16 +13,16 @@ def dump_file(filename):
                 hex_data = ' '.join(f"{byte:02x}" for byte in data)  # Convert bytes to hex
                 ascii_data = ''.join(chr(byte) if 32 <= byte <= 126 else '.' for byte in data) 
                 # Convert bytes to ASCII
-                print(f"{offset} {hex_data:<48} {ascii_data}")
+                console.print(f"[cyan]{offset}[/cyan] | [magenta]{hex_data:<48}[/magenta] | " 
+                              f"[green]{ascii_data}[/green]")
                 byte_count += len(data)
-                print(f"Read {byte_count} bytes.")
-        print(f"Total bytes read: {byte_count}")
+        console.print(f"[bold]Total bytes read: {byte_count}[/bold]")
     
     except FileNotFoundError:
-        print("Error: File not found.")
+        console.print(f"[bold red]Error: File not found.[/bold red]")
     except IOError as e:
-        print (f"I/O error: {e}")
-        
+        console.print(f"[bold red]I/O error: {e}[/bold red]")
+
 def identify_file_type(filename):
     try:
         with open(filename, "rb") as file:
@@ -42,12 +44,12 @@ def identify_file_type(filename):
                 if data.startswith(signature):
                     detected_type = f"File type: {file_type}"
                     break
-            print(detected_type)
+            console.print(f"[bold yellow]{detected_type}[/bold yellow]")
     except FileNotFoundError:
-        print("Error: File not found.")
+        console.print(f"[bold red]Error: File not found.[/bold red]")
     except IOError as e:
-        print (f"I/O error: {e}")
-        
+        console.print(f"[bold red]I/O error: {e}[/bold red]")
+
 def strings_file(filename):
     try:
         with open(filename, "rb") as file:
@@ -58,7 +60,8 @@ def strings_file(filename):
                 data = file.read(1) # Read 1 byte at a time
                 if not data: 
                     if len(characters) >= 4:
-                        print(f"Offset: {current_offset:08x}, Characters: {''.join(characters)}")
+                        console.print(f"Offset: [cyan]{current_offset:08x}[/cyan], Characters: "
+                                      f"[green]{''.join(characters)}[/green]")
                     break
                     
                 if 32 <= data[0] <= 126:
@@ -68,14 +71,15 @@ def strings_file(filename):
                         current_offset = file.tell() - 4
                 else:
                     if len(characters) >= 4:
-                        print(f"Offset: {current_offset:08x}, Characters: {''.join(characters)}")
+                        console.print(f"Offset: [cyan]{current_offset:08x}[/cyan], Characters: " 
+                                      f"[green]{''.join(characters)}[/green]")
                     byte_count = 0
                     characters = []
                     
     except FileNotFoundError:
-        print("Error: File not found.")
+        console.print(f"[bold red]Error: File not found.[/bold red]")
     except IOError as e:
-        print (f"I/O error: {e}")
+        console.print(f"[bold red]I/O error: {e}[/bold red]")
 
 
 def main():
@@ -102,7 +106,8 @@ def main():
     elif args.strings:
         strings_file(args.filename)
     else:
-        print("Unknown action. Please specify --dump, --identify, --strings, or --all.")
+        console.print(f"[bold red]Unknown action. Please specify --dump, --identify, --strings," 
+                      f"or --all.[/bold red]")
         
 if __name__ == "__main__":
     main()
