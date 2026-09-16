@@ -78,4 +78,32 @@ def strings_file(filename):
         print (f"I/O error: {e}")
 
 
-
+def main():
+    import argparse
+    
+    parser = argparse.ArgumentParser(description = "Hex Viewer and File Type Identifier")
+    parser.add_argument("filename", help = "The file to analyze")
+    parser.add_argument("--dump", action = "store_true", help = "Dump the file in hex format")
+    parser.add_argument("--identify", action = "store_true", help = "Identify the file type")
+    parser.add_argument("--strings", action = "store_true", help = "Extract printable strings from" 
+                        " the file")
+    
+    parser.add_argument("--all", action = "store_true", help = "Perform all actions")
+    args = parser.parse_args()
+    
+    if args.all:
+        dump_file(args.filename)
+        identify_file_type(args.filename)
+        strings_file(args.filename)
+    elif args.dump:
+        dump_file(args.filename)
+    elif args.identify:
+        identify_file_type(args.filename)
+    elif args.strings:
+        strings_file(args.filename)
+    else:
+        print("Unknown action. Please specify --dump, --identify, --strings, or --all.")
+        
+if __name__ == "__main__":
+    main()
+    
