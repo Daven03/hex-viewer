@@ -10,20 +10,43 @@ working with binary formats.
 ## Usage
 
 ```
-$ hexview dump file.bin
-(paste real output here once the dump command works)
+$ python3 hexview.py tests/fixtures/test.txt --dump
+00000000 | 54 68 69 73 20 69 73 20 61 20 73 65 6e 74 65 6e  | This 
+is a senten
+00000010 | 63 65 2e                                         | ce.
+Total bytes read: 19
 
-$ hexview identify file.bin
-(paste real output here)
+$ python3 hexview.py tests/fixtures/test.txt --identify
+unknown file type
 
-$ hexview strings file.bin --min-len 4
-(paste real output here)
+$ python3 hexview.py tests/fixtures/test.txt --strings
+Offset: 00000000, Characters: This is a sentence.
+
+$ python3 hexview.py tests/fixtures/test.txt --all
+00000000 | 54 68 69 73 20 69 73 20 61 20 73 65 6e 74 65 6e  | This 
+is a senten
+00000010 | 63 65 2e                                         | ce.
+Total bytes read: 19
+unknown file type
+Offset: 00000000, Characters: This is a sentence.
 ```
 
 ## How it works
 
-(Fill this in once the tool is built. Cover: why 16 bytes per row, how magic-byte
-detection works, how the string-extraction scan works.)
+The dump feature reads chunks of up to 16 bytes of the file at a time. The feature reads chunks of 
+16 bytes, since 16 bytes produces line width that fits comfortably in a standard 80-column terminal,
+and 16 is a clean power-of-2 that divides evenly into common data sizes. The feature then makes a 
+row for each chunk of bytes. Each row displays the offset, the hex format, and the ASCII of the 
+bytes that were read.
+
+The identify feature is used to read what type of file your file is. It reads the first 4 bytes of 
+the file, and compares it to a dictionary of known signatures that correspond to specific file 
+types. For instance, PNG files always begin with the bytes \x89PNG.
+
+The string feature reads one byte at a time, and checks for strings by seeing if 4 or more bytes in 
+a row can be converted to printable ASCII. The feature checks for at least 4 printable bytes in a 
+row, to ensure that those bytes are actual text, and not coincidental matches. The feature then 
+prints each valid string it found along with its offset.
 
 ## Installation
 
@@ -38,7 +61,9 @@ pip install -r requirements.txt
 ## Running
 
 ```
-python -m hexview dump <file>
+python3 hexview.py <file> --dump
+python3 hexview.py <file> --identify
+python3 hexview.py <file> --strings
+python3 hexview.py <file> --all
 ```
 
-(Update this once the CLI entry point exists.)
